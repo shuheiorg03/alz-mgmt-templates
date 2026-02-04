@@ -139,6 +139,15 @@ jobs:
           -backend-config="container_name=${{vars.BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME}}" \
           -backend-config="key=terraform.tfstate"
 
+      - name: Import Existing Resources
+        if: hashFiles('import.tf') != ''
+        run: |
+          terraform \
+          -chdir="${{inputs.root_module_folder_relative_path}}" \
+          import \
+          'azurerm_subscription.this["demo-app-dev"]' \
+          '/providers/Microsoft.Subscription/aliases/demo-app-dev' || true
+
       - name: Terraform ${{ inputs.terraform_action == 'destroy' && 'Destroy' || 'Apply' }}
         run: |
           terraform \
